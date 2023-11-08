@@ -5,6 +5,11 @@ import './PokeList.css'
 export function PokeList() {
   const [allPokemon, setAllPokemon] = useState([])
 
+  const cleanName = (name) => {
+    const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1)
+    return capitalizedName.replace('-m', '♂').replace('-f', '♀')
+  }
+
   const getAllPokemon = async () => {
     const response = await fetch(
       'https://pokeapi.co/api/v2/pokemon?limit=649&offset=0'
@@ -18,7 +23,9 @@ export function PokeList() {
         )
         const data = await response.json()
         setAllPokemon((currentList) => [...currentList, data])
-        //await allPokemon.sort((a, b) => a.id - b.id)
+        allPokemon.sort((a, b) => a.order - b.order)
+        //allPokemon.sort((a,b) => (a.id > b.id) ? 1 : ((b.id > a.id) ? -1 : 0))
+        //allPokemon.sort((a, b) => a.id.localeCompare(b.id))
       })
     }
 
@@ -37,13 +44,17 @@ export function PokeList() {
             <PokemonCard
               key={pokemon.id}
               id={pokemon.id.toString().padStart(3, '0')}
-              name={pokemon.name}
+              name={cleanName(pokemon.name)}
               image={pokemon.sprites.other['official-artwork'].front_default}
               type={pokemon.types[0].type.name}
               height={pokemon.height}
               weight={pokemon.weight}
-              stats={pokemon.stats.map((stat) => stat.base_stat).slice(0,3)}
-              statsName={pokemon.stats.map((stat) => stat.stat.name).slice(0,3)}
+              stats={pokemon.stats
+                .map((stat) => stat.base_stat)
+                .slice(0, 3)}
+              statsName={pokemon.stats
+                .map((stat) => stat.stat.name)
+                .slice(0, 3)}
             />
           ))}
         </div>
@@ -51,10 +62,3 @@ export function PokeList() {
     </div>
   )
 }
-
-// const {name, height, weight} = pokemon
-//   const id= pokemon.id.toString().padStart(3,'0')
-//   const image = pokemon.sprites.other['official-artwork'].front_default
-//   const type= pokemon.types[0].type.name
-//   const stats = pokemon.stats.map((stat) => stat.base_stat).slice(0,3)
-//   const statsName = pokemon.stats.map((stat) => stat.stat.name).slice(0,3)
